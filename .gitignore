@@ -3,3 +3,4 @@ website-backend/
 __pycache__/
 .idea/
 
+venv/

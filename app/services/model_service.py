@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import joblib
 import tensorflow as tf
+from tensorflow.keras.models import load_model
 
 class ModelService:
     def __init__(self):
@@ -12,6 +13,7 @@ class ModelService:
         # Cargar los escaladores
         self.scaler_sales = joblib.load('app/services/scaler_sales.pkl')
         self.scaler_temp  = joblib.load('app/services/scaler_temp.pkl')
+        self.model_classfier = load_model('app/services/modelo_clasificacion.h5')
         
         # Cargar la última ventana de datos (forma: [window_size, 3])
         self.last_window = np.load('app/services/last_window.npy')
@@ -77,3 +79,14 @@ class ModelService:
         pred_ventas = self.scaler_sales.inverse_transform([[pred_scaled]])[0, 0]
         
         return pred_ventas
+    
+    def get_image_classifier(self, image):
+        class_names = ['jeans', 'sofa', 'tshirt', 'tv']
+        predicciones = self.model_classfier.predict(image)
+        clase_predicha = np.argmax(predicciones, axis=1)
+        probabilidades = predicciones[0]
+
+        # Obtener el nombre de la clase predicha usando class_names
+        clase_predicha = class_names[clase_predicha[0]]
+
+        return clase_predicha

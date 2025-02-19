@@ -26,9 +26,9 @@ class App:
 app_instance = App()
 app = app_instance.get_app()
 
-"""# Ejecución del servidor
+# Ejecución del servidor
 if __name__ == "__main__":
     # Obtén el puerto desde la variable de entorno o usa 8000 por defecto
     port = int(os.getenv("PORT", 8000))
     # Ejecuta el servidor con el host 0.0.0.0
-    uvicorn.run(app, host="0.0.0.0", port=port)"""
+    uvicorn.run(app, host="0.0.0.0", port=port)

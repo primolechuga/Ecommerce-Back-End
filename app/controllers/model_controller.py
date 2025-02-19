@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Request, status, UploadFile, File
 from pydantic import BaseModel
 from app.services.model_service import ModelService
-
+from tensorflow.keras.preprocessing import image
+import numpy as np
+from PIL import Image
+import io
+import json
+from fastapi.responses import JSONResponse
 class ModelController:
 
     def __init__(self):
@@ -22,12 +27,6 @@ class ModelController:
             status_code=status.HTTP_200_OK
         )
 
-        self.router.add_api_route(
-            "/get-text-generator", 
-            self.get_text_generator, 
-            methods=["POST"],
-            status_code=status.HTTP_200_OK
-        )
 
 
 
@@ -49,20 +48,22 @@ class ModelController:
         return {"result": f"$ {int(result)}"}
     
 
-    async def get_image_classifier(self, image: UploadFile = File(...)):
-        # Imprime el nombre de la imagen
-        print("Nombre de la imagen:", image.filename)
-        # Lee el contenido de la imagen (en bytes)
-        contents = await image.read()
-        # Para evitar imprimir demasiados bytes, mostramos solo los primeros 100
-        print("Contenido de la imagen (primeros 100 bytes):", contents[:100])
+    async def get_image_classifier(self, image_file: UploadFile = File(...)):
+        # Leer la imagen en bytes y abrirla con PIL
+        contents = await image_file.read()
+        img = Image.open(io.BytesIO(contents)).convert("RGB")  # Convertir a RGB por compatibilidad
+
+        # Convertir la imagen a array de NumPy
+        img = img.resize((224, 224))  # Ajustar tamaño según el modelo
+        img_array = image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0)  # Agregar dimensión batch
+        img_array /= 255.0  # Normalizar
+
+        prediction = self.model_service.get_image_classifier(img_array)
+
+        print("Prediction result:", prediction)
+
+        return prediction
+
+
         
-        return {"result": "Imagen impresa"}
-    
-
-    async def get_text_generator(self, request: Request):
-        data = await request.json()
-        text = data.get("inputText")
-        print("Texto recibido:", text)
-        return {"result": f"Texto recibido: {text}"}
-
