@@ -11,4 +11,4 @@ COPY . .
 EXPOSE 8080:8080
 
 
-CMD [ "python", "app.main.py" ]
+CMD [ "python", "main.py" ]
