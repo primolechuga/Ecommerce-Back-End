@@ -45,7 +45,7 @@ class ModelController:
         result = self.model_service.get_time_series(date, holiday, temperature)
         print("Resultado predicción:", result)
         
-        return {"result": f"$ {int(result)}"}
+        return {"result": f" {result}"}
     
 
     async def get_image_classifier(self, image_file: UploadFile = File(...)):
